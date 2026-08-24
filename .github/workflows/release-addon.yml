@@ -41,7 +41,7 @@ jobs:
         run: |
           STAGE="$(mktemp -d)"
           mkdir -p "$STAGE/DecorShoppingList"
-          cp "DecorShoppingList.toc" ./*.lua "$STAGE/DecorShoppingList/"
+          cp "DecorShoppingList.toc" README.md ./*.lua "$STAGE/DecorShoppingList/"
           cp -R Assets Core Integrations Navigation Sources UI "$STAGE/DecorShoppingList/"
           (
             cd "$STAGE"
