@@ -1,0 +1,73 @@
+name: Publish addon release
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "DecorShoppingList.toc"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the release commit
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect a release milestone
+        id: version
+        shell: bash
+        run: |
+          VERSION="$(sed -n 's/^## Version: //p' "DecorShoppingList.toc" | head -n 1)"
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.0$ ]]; then
+            echo "release=false" >> "$GITHUB_OUTPUT"
+            echo "Version $VERSION is a normal patch build; no public release."
+            exit 0
+          fi
+
+          echo "release=true" >> "$GITHUB_OUTPUT"
+          echo "number=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Build install-ready ZIP
+        if: steps.version.outputs.release == 'true'
+        shell: bash
+        run: |
+          STAGE="$(mktemp -d)"
+          mkdir -p "$STAGE/DecorShoppingList"
+          cp "DecorShoppingList.toc" ./*.lua "$STAGE/DecorShoppingList/"
+          cp -R Assets Core Integrations Navigation Sources UI "$STAGE/DecorShoppingList/"
+          (
+            cd "$STAGE"
+            zip -qr "$GITHUB_WORKSPACE/DecorShoppingList.zip" "DecorShoppingList"
+          )
+
+      - name: Publish GitHub Release
+        if: steps.version.outputs.release == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.number }}
+          TAG: ${{ steps.version.outputs.tag }}
+        shell: bash
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release $TAG already exists; keeping it unchanged."
+            exit 0
+          fi
+
+          awk -v heading="## $VERSION " '
+            index($0, heading) == 1 { found = 1; next }
+            found && /^## / { exit }
+            found { print }
+          ' "CHANGELOG.md" > "release-notes.md"
+
+          gh release create "$TAG" "DecorShoppingList.zip" \
+            --target "$GITHUB_SHA" \
+            --title "Decor Shopping List $VERSION" \
+            --notes-file "release-notes.md"

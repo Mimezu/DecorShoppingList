@@ -1,0 +1,9 @@
+/Versions/*.zip
+*.zip
+.DS_Store
+Thumbs.db
+.luacheckcache
+.idea/
+.vscode/
+*.bak
+*.tmp

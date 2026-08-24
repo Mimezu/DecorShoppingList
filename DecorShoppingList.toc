@@ -1,0 +1,29 @@
+## Interface: 120100
+## Title: Decor Shopping List
+## Notes: Build and track decor shopping lists from housing blueprints and the Housing Catalog.
+## Author: Mimezu
+## Version: 0.2.0
+## SavedVariables: DecorShoppingListDB
+## OptionalDeps: Blizzard_HousingBlueprint, Blizzard_HousingDashboard, TomTom
+## Category: Housing
+## IconTexture: Interface\AddOns\DecorShoppingList\Assets\DecorShoppingListIcon
+## AddonCompartmentFunc: DecorShoppingList_OnAddonCompartmentClick
+
+Bootstrap.lua
+Core\SafeValue.lua
+Localization.lua
+Core\Store.lua
+Core\Catalog.lua
+Core\Blueprints.lua
+Sources\Registry.lua
+Sources\Vendors.lua
+Sources\HomeBoundVendors.lua
+Navigation\Waypoint.lua
+Integrations\HousingCatalog.lua
+Integrations\Merchant.lua
+Integrations\VendorNameplates.lua
+UI\Theme.lua
+UI\MainWindow.lua
+UI\Help.lua
+Core\Controller.lua
+Main.lua
